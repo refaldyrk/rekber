@@ -1,0 +1,46 @@
+package repository
+
+import (
+	"context"
+	"rekber/model"
+
+	"github.com/qiniu/qmgo"
+	"gopkg.in/mgo.v2/bson"
+)
+
+type UserRepository struct {
+	db *qmgo.Database
+}
+
+func NewUserRepository(db *qmgo.Database) *UserRepository {
+	return &UserRepository{db}
+}
+
+func (u *UserRepository) Create(ctx context.Context, user model.User) (model.User, error) {
+	_, err := u.db.Collection("User").InsertOne(ctx, user)
+	if err != nil {
+		return model.User{}, err
+	}
+
+	return user, nil
+}
+
+func (u *UserRepository) Find(ctx context.Context, nameFilter, user_id string) (model.User, error) {
+	var user model.User
+	err := u.db.Collection("User").Find(ctx, bson.M{nameFilter: user_id}).One(&user)
+	if err != nil {
+		return model.User{}, err
+	}
+
+	return user, nil
+}
+
+func (u *UserRepository) FindAll(ctx context.Context, nameFilter, user_id string) ([]model.User, error) {
+	var user []model.User
+	err := u.db.Collection("User").Find(ctx, bson.M{nameFilter: user_id}).All(&user)
+	if err != nil {
+		return []model.User{}, err
+	}
+
+	return user, nil
+}
