@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"rekber/config"
 	"rekber/handler"
+	"rekber/middleware"
 	"rekber/repository"
 	"rekber/service"
 	"syscall"
@@ -37,18 +38,21 @@ func main() {
 	}
 
 	//Init Database
-	DB := mongodb.Database("rekber")
+	DB := mongodb.Database(viper.GetString("DATABASE_NAME"))
 
 	//=================> Repository
 	userRepo := repository.NewUserRepository(DB)
+	orderRepo := repository.NewOrderRepository(DB)
 
 	//=================> Service
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthService(userRepo)
+	orderService := service.NewOrderService(orderRepo, userRepo)
 
 	//=================> Handler
 	userHandler := handler.NewUserHandler(userService)
 	authHandler := handler.NewAuthHandler(authService)
+	orderHandler := handler.NewOrderHandler(orderService)
 
 	//Server
 	app := gin.Default()
@@ -69,6 +73,14 @@ func main() {
 
 	app.POST("/register", userHandler.Register)
 	app.POST("/login", authHandler.Login)
+
+	//======================> Order Endpoint Group
+	orderEndpoint := app.Group("/api/order")
+	orderEndpoint.Use(middleware.JWTMiddleware(DB))
+
+	orderEndpoint.POST("/", orderHandler.NewOrder)
+	orderEndpoint.GET("/", orderHandler.FindAllOrderByRole)
+	orderEndpoint.GET("/:id", orderHandler.GetOrderDetailByOrderID)
 
 	//Init Server
 	srv := &http.Server{
