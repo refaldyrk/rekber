@@ -17,10 +17,7 @@ func JWTMiddleware(db *qmgo.Database) gin.HandlerFunc {
 		tokenCookies, _ := c.Cookie("Authorization")
 
 		if authorizationHeader == "" && tokenCookies == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"message": "unauthorized",
-				"error":   true,
-			})
+			c.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnauthorized, "unauthorized", gin.H{}))
 			c.Abort()
 			return
 		}
@@ -33,10 +30,7 @@ func JWTMiddleware(db *qmgo.Database) gin.HandlerFunc {
 			claims, err = helper.ValidateJWT(tokenStringHeader)
 			if err != nil {
 
-				c.JSON(http.StatusUnauthorized, gin.H{
-					"message": err.Error(),
-					"error":   true,
-				})
+				c.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnauthorized, err.Error(), gin.H{}))
 				c.Abort()
 				return
 			}
@@ -46,10 +40,7 @@ func JWTMiddleware(db *qmgo.Database) gin.HandlerFunc {
 		user := model.User{}
 		err = db.Collection("User").Find(c, qmgo.M{"user_id": userID}).One(&user)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"message": "unauthorized, user not found",
-				"error":   true,
-			})
+			c.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnauthorized, "user not found", gin.H{}))
 			c.Abort()
 			return
 		}
