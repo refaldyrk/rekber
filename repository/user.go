@@ -35,9 +35,26 @@ func (u *UserRepository) Find(ctx context.Context, nameFilter, user_id string) (
 	return user, nil
 }
 
-func (u *UserRepository) FindAll(ctx context.Context, nameFilter, user_id string) ([]model.User, error) {
+func (u *UserRepository) FindByUsernameOrEmail(ctx context.Context, nameFilter string) (model.User, error) {
+	var user model.User
+	filter := bson.M{
+		"$or": []bson.M{
+			{"username": nameFilter},
+			{"email": nameFilter},
+		},
+	}
+
+	err := u.db.Collection("User").Find(ctx, filter).One(&user)
+	if err != nil {
+		return model.User{}, err
+	}
+
+	return user, nil
+}
+
+func (u *UserRepository) FindAll(ctx context.Context, nameFilter, valueFilter string) ([]model.User, error) {
 	var user []model.User
-	err := u.db.Collection("User").Find(ctx, bson.M{nameFilter: user_id}).All(&user)
+	err := u.db.Collection("User").Find(ctx, bson.M{nameFilter: valueFilter}).All(&user)
 	if err != nil {
 		return []model.User{}, err
 	}
