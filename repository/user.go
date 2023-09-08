@@ -25,9 +25,9 @@ func (u *UserRepository) Create(ctx context.Context, user model.User) (model.Use
 	return user, nil
 }
 
-func (u *UserRepository) Find(ctx context.Context, nameFilter, user_id string) (model.User, error) {
+func (u *UserRepository) Find(ctx context.Context, nameFilter, valueFilter string) (model.User, error) {
 	var user model.User
-	err := u.db.Collection("User").Find(ctx, bson.M{nameFilter: user_id}).One(&user)
+	err := u.db.Collection("User").Find(ctx, bson.M{nameFilter: valueFilter}).One(&user)
 	if err != nil {
 		return model.User{}, err
 	}
