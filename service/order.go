@@ -118,6 +118,52 @@ func (o *OrderService) FindByOrderID(ctx context.Context, orderID, userID string
 	return orderDataDetail, nil
 }
 
+func (o *OrderService) FindAllOrderByStatus(ctx context.Context, status, userID string) ([]model.Order, error) {
+	if userID == "" || status == "" {
+		return []model.Order{}, errors.New("invalid request")
+	}
+
+	//Match Status
+	switch status {
+	case constant.CANCELED_STATUS:
+		status = constant.CANCELED_STATUS
+		break
+	case constant.PENDING_STATUS:
+		status = constant.PENDING_STATUS
+		break
+	case constant.SUCCESS_STATUS:
+		status = constant.SUCCESS_STATUS
+		break
+	default:
+		return []model.Order{}, errors.New("uknown status")
+	}
+
+	//Check User Exists
+	user, err := o.userRepo.Find(ctx, "user_id", userID)
+	if user.ID.IsZero() {
+		return []model.Order{}, errors.New("user not found")
+	}
+
+	if err != nil {
+		return []model.Order{}, err
+	}
+
+	filter := bson.M{
+		"$or": []bson.M{
+			{"buyer_id": user.UserID},
+			{"seller_id": user.UserID},
+		},
+		"status": status,
+	}
+
+	allOrder, err := o.repo.FindAll(ctx, filter)
+	if err != nil {
+		return []model.Order{}, err
+	}
+
+	return allOrder, nil
+}
+
 func (o *OrderService) SetStatusByOrderID(ctx context.Context, orderID, userID, status string) (bool, error) {
 	if userID == "" || orderID == "" {
 		return false, errors.New("invalid request")

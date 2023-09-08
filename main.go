@@ -80,9 +80,10 @@ func main() {
 	orderEndpoint := app.Group("/api/order")
 	orderEndpoint.Use(middleware.JWTMiddleware(DB))
 
-	orderEndpoint.POST("/", orderHandler.NewOrder)
 	orderEndpoint.GET("/", orderHandler.FindAllOrderByRole)
 	orderEndpoint.GET("/:id", orderHandler.GetOrderDetailByOrderID)
+	orderEndpoint.GET("/status/:status", orderHandler.GetAllOrderByStatus)
+	orderEndpoint.POST("/", orderHandler.NewOrder)
 	orderEndpoint.PATCH("cancel/:id", orderHandler.SetCancelStatusByOrderID)
 
 	//Init Server

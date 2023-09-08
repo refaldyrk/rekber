@@ -3,7 +3,7 @@ package constant
 const (
 	PENDING_STATUS  = "pending"
 	SUCCESS_STATUS  = "success"
-	CANCELED_STATUS = "canceled"
+	CANCELED_STATUS = "cancel"
 
 	//Role
 	BUYER  = "buyer"

@@ -89,6 +89,29 @@ func (o *OrderHandler) GetOrderDetailByOrderID(c *gin.Context) {
 	return
 }
 
+func (o *OrderHandler) GetAllOrderByStatus(c *gin.Context) {
+	userID := c.GetString("userID")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnauthorized, "unauthorized", gin.H{}))
+		return
+	}
+
+	status := c.Param("status")
+	if status == "" {
+		c.JSON(http.StatusBadRequest, helper.ResponseAPI(false, http.StatusBadRequest, "status param empty", gin.H{}))
+		return
+	}
+
+	result, err := o.service.FindAllOrderByStatus(c, status, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, helper.ResponseAPI(false, http.StatusInternalServerError, err.Error(), gin.H{}))
+		return
+	}
+
+	c.JSON(http.StatusOK, helper.ResponseAPI(true, http.StatusOK, "succes get all order by status", result))
+	return
+}
+
 func (o *OrderHandler) SetCancelStatusByOrderID(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
