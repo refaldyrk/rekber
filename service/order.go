@@ -54,7 +54,7 @@ func (o *OrderService) Insert(ctx context.Context, req dto.NewOrderReq, userID s
 		Type:      req.Type,
 		Amount:    req.Amount + int64(fee),
 		Fee:       fee,
-		Status:    constant.WAITING_STATUS,
+		Status:    constant.PENDING_STATUS,
 		CreatedAt: time.Now().Unix(),
 		UpdatedAt: time.Now().Unix(),
 	}

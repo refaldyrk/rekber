@@ -1,7 +1,6 @@
 package constant
 
 const (
-	WAITING_STATUS  = "waiting"
 	PENDING_STATUS  = "pending"
 	SUCCESS_STATUS  = "success"
 	CANCELED_STATUS = "canceled"
