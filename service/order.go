@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"rekber/constant"
 	"rekber/dto"
 	"rekber/helper"
@@ -141,6 +142,11 @@ func (o *OrderService) SetStatusByOrderID(ctx context.Context, orderID, userID, 
 
 	if err != nil {
 		return false, err
+	}
+
+	//Is Already Or Not?
+	if status == order.Status {
+		return false, errors.New(fmt.Sprintf("already status: %s", order.Status))
 	}
 
 	//Check User, Seller Or Buyer?
