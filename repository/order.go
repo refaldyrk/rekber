@@ -120,3 +120,12 @@ func (o *OrderRepository) SetStatusOrderByOrderID(ctx context.Context, orderID, 
 
 	return true, nil
 }
+
+func (o *OrderRepository) Update(ctx context.Context, filter, update bson.M) error {
+	err := o.db.Collection("Order").UpdateOne(ctx, filter, bson.M{"$set": update})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

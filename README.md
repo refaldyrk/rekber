@@ -4,6 +4,7 @@
 
 - [Gin](https://github.com/gin-gonic/gin) - Framework web yang cepat dan ringan untuk Go.
 - [MongoDB](https://www.mongodb.com/) - Basis data NoSQL yang fleksibel.
+- [Midtrans](https://midtrans.com) - Payment Gateway
 
 ## Apa Itu Rekber?
 

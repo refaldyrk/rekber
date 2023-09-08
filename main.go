@@ -45,16 +45,19 @@ func main() {
 	//=================> Repository
 	userRepo := repository.NewUserRepository(DB)
 	orderRepo := repository.NewOrderRepository(DB)
+	paymentRepo := repository.NewPaymentRepository(DB)
 
 	//=================> Service
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthService(userRepo)
 	orderService := service.NewOrderService(orderRepo, userRepo)
+	paymentService := service.NewPaymentService(userRepo, orderRepo, paymentRepo)
 
 	//=================> Handler
 	userHandler := handler.NewUserHandler(userService)
 	authHandler := handler.NewAuthHandler(authService)
 	orderHandler := handler.NewOrderHandler(orderService)
+	paymentHandler := handler.NewPaymentHandler(paymentService)
 
 	//Server
 	app := gin.Default()
@@ -86,6 +89,17 @@ func main() {
 	orderEndpoint.POST("/", orderHandler.NewOrder)
 	orderEndpoint.PATCH("/cancel/:id", orderHandler.SetCancelStatusByOrderID)
 	orderEndpoint.PATCH("/success/:id", orderHandler.SetSuccessByBuyer)
+
+	//=================> Payment Endpoint Group
+	paymentEndpoint := app.Group("/api/payment")
+	paymentEndpoint.Use(middleware.JWTMiddleware(DB))
+
+	paymentEndpoint.POST("/:id", paymentHandler.NewPayment)
+
+	//=================> Notification Payment Endpoint Group
+	paymentNotificationEndpoint := app.Group("/notification/3rd/midtrans")
+
+	paymentNotificationEndpoint.POST("/notification", paymentHandler.NotificationPayment)
 
 	//Init Server
 	srv := &http.Server{

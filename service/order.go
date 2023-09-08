@@ -208,6 +208,10 @@ func (o *OrderService) SetStatusByOrderID(ctx context.Context, orderID, userID, 
 		if order.Status == constant.CANCELED_STATUS {
 			return false, errors.New("order has cancel")
 		}
+	} else if status == constant.CANCELED_STATUS {
+		if order.Status == constant.PAID_STATUS {
+			return false, errors.New("order has paid")
+		}
 	}
 	//Update Order Data
 	isSuccesUpdate, err := o.repo.SetStatusOrderByOrderID(ctx, orderID, status)
