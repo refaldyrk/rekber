@@ -20,6 +20,8 @@ import (
 )
 
 func main() {
+	//Set Time
+	startServerTime := time.Now()
 	//Set Context
 	ctx := context.Background()
 	//Init Viper
@@ -81,6 +83,7 @@ func main() {
 	orderEndpoint.POST("/", orderHandler.NewOrder)
 	orderEndpoint.GET("/", orderHandler.FindAllOrderByRole)
 	orderEndpoint.GET("/:id", orderHandler.GetOrderDetailByOrderID)
+	orderEndpoint.PATCH("cancel/:id", orderHandler.SetCancelStatusByOrderID)
 
 	//Init Server
 	srv := &http.Server{
@@ -100,7 +103,7 @@ func main() {
 
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Shutdown Server ...")
+	log.Println("Shutdown Server ... ", time.Since(startServerTime).Seconds(), " s")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()

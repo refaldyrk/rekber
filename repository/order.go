@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"rekber/helper"
 	"rekber/model"
 
@@ -98,4 +99,22 @@ func (o *OrderRepository) GetOrderByOrderID(ctx context.Context, orderID string)
 	}
 
 	return orders, nil
+}
+
+func (o *OrderRepository) SetStatusOrderByOrderID(ctx context.Context, orderID, status string) (bool, error) {
+	err := o.db.Collection("Order").UpdateOne(ctx, bson.M{"order_id": orderID}, bson.M{
+		"$set": bson.M{
+			"status": status,
+		},
+	})
+
+	if err == qmgo.ErrNoSuchDocuments {
+		return false, errors.New("not found")
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

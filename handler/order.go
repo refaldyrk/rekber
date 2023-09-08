@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"rekber/constant"
 	"rekber/dto"
 	"rekber/helper"
 	"rekber/service"
@@ -85,5 +86,28 @@ func (o *OrderHandler) GetOrderDetailByOrderID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, helper.ResponseAPI(true, http.StatusOK, "success get detail order", detailOrder))
+	return
+}
+
+func (o *OrderHandler) SetCancelStatusByOrderID(c *gin.Context) {
+	userID := c.GetString("userID")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnauthorized, "unauthorized", gin.H{}))
+		return
+	}
+
+	orderID := c.Param("id")
+	if orderID == "" {
+		c.JSON(http.StatusBadRequest, helper.ResponseAPI(false, http.StatusBadRequest, "id param can't be empty", gin.H{}))
+		return
+	}
+
+	isUpdateOrder, err := o.service.SetStatusByOrderID(c, orderID, userID, constant.CANCELED_STATUS)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, helper.ResponseAPI(isUpdateOrder, http.StatusInternalServerError, err.Error(), gin.H{}))
+		return
+	}
+
+	c.JSON(http.StatusOK, helper.ResponseAPI(isUpdateOrder, http.StatusOK, "success cancel order", gin.H{}))
 	return
 }

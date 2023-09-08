@@ -116,3 +116,43 @@ func (o *OrderService) FindByOrderID(ctx context.Context, orderID, userID string
 
 	return orderDataDetail, nil
 }
+
+func (o *OrderService) SetStatusByOrderID(ctx context.Context, orderID, userID, status string) (bool, error) {
+	if userID == "" || orderID == "" {
+		return false, errors.New("invalid request")
+	}
+
+	//Check Status?
+	switch status {
+	case constant.CANCELED_STATUS:
+		status = constant.CANCELED_STATUS
+		break
+	case constant.SUCCESS_STATUS:
+		status = constant.SUCCESS_STATUS
+		break
+	default:
+		return false, errors.New("uknown status")
+	}
+
+	order, err := o.repo.Find(ctx, bson.M{"order_id": orderID})
+	if order.ID.IsZero() {
+		return false, errors.New("not found")
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	//Check User, Seller Or Buyer?
+	if order.BuyerID != userID && order.SellerID != userID {
+		return false, errors.New("access denied")
+	}
+
+	//Update Order Data
+	isSuccesUpdate, err := o.repo.SetStatusOrderByOrderID(ctx, orderID, status)
+	if err != nil {
+		return isSuccesUpdate, err
+	}
+
+	return isSuccesUpdate, nil
+}
