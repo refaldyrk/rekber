@@ -200,6 +200,15 @@ func (o *OrderService) SetStatusByOrderID(ctx context.Context, orderID, userID, 
 		return false, errors.New("access denied")
 	}
 
+	if status == constant.SUCCESS_STATUS {
+		if userID != order.BuyerID {
+			return false, errors.New("only buyer")
+		}
+
+		if order.Status == constant.CANCELED_STATUS {
+			return false, errors.New("order has cancel")
+		}
+	}
 	//Update Order Data
 	isSuccesUpdate, err := o.repo.SetStatusOrderByOrderID(ctx, orderID, status)
 	if err != nil {

@@ -84,7 +84,8 @@ func main() {
 	orderEndpoint.GET("/:id", orderHandler.GetOrderDetailByOrderID)
 	orderEndpoint.GET("/status/:status", orderHandler.GetAllOrderByStatus)
 	orderEndpoint.POST("/", orderHandler.NewOrder)
-	orderEndpoint.PATCH("cancel/:id", orderHandler.SetCancelStatusByOrderID)
+	orderEndpoint.PATCH("/cancel/:id", orderHandler.SetCancelStatusByOrderID)
+	orderEndpoint.PATCH("/success/:id", orderHandler.SetSuccessByBuyer)
 
 	//Init Server
 	srv := &http.Server{
