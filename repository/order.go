@@ -5,6 +5,7 @@ import (
 	"errors"
 	"rekber/helper"
 	"rekber/model"
+	"time"
 
 	"github.com/qiniu/qmgo"
 	"gopkg.in/mgo.v2/bson"
@@ -104,7 +105,8 @@ func (o *OrderRepository) GetOrderByOrderID(ctx context.Context, orderID string)
 func (o *OrderRepository) SetStatusOrderByOrderID(ctx context.Context, orderID, status string) (bool, error) {
 	err := o.db.Collection("Order").UpdateOne(ctx, bson.M{"order_id": orderID}, bson.M{
 		"$set": bson.M{
-			"status": status,
+			"status":     status,
+			"updated_at": time.Now().Unix(),
 		},
 	})
 
