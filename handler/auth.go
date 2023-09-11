@@ -50,3 +50,51 @@ func (u *AuthHandler) Login(ctx *gin.Context) {
 	}))
 	return
 }
+
+func (u *AuthHandler) LoginV2Register(ctx *gin.Context) {
+	var loginReq dto.LoginV2Req
+	err := ctx.ShouldBindJSON(&loginReq)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, helper.ResponseAPI(false, http.StatusBadRequest, err.Error(), gin.H{}))
+		return
+	}
+
+	loginV2, err := u.service.RegisterLoginV2(ctx, loginReq.Email)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, helper.ResponseAPI(false, http.StatusInternalServerError, err.Error(), gin.H{}))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, helper.ResponseAPI(true, http.StatusOK, "success login", loginV2))
+	return
+}
+
+func (u *AuthHandler) LoginV2(ctx *gin.Context) {
+	param := ctx.Param("codelink")
+	if param == "" {
+		ctx.JSON(http.StatusBadRequest, helper.ResponseAPI(false, http.StatusBadRequest, "codelink has not found", gin.H{}))
+		return
+	}
+
+	user, err := u.service.LoginV2(ctx, param)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, helper.ResponseAPI(false, http.StatusInternalServerError, err.Error(), gin.H{}))
+		return
+	}
+
+	// generate token
+	token, err := helper.GenJWT(user.UserID, 24*time.Hour)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+			"error":   true,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, helper.ResponseAPI(true, http.StatusOK, "success login", gin.H{
+		"token": token,
+		"user":  user,
+	}))
+	return
+}

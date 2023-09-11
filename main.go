@@ -44,12 +44,13 @@ func main() {
 
 	//=================> Repository
 	userRepo := repository.NewUserRepository(DB)
+	authRepo := repository.NewAuthRepository(DB)
 	orderRepo := repository.NewOrderRepository(DB)
 	paymentRepo := repository.NewPaymentRepository(DB)
 
 	//=================> Service
 	userService := service.NewUserService(userRepo)
-	authService := service.NewAuthService(userRepo)
+	authService := service.NewAuthService(userRepo, authRepo)
 	orderService := service.NewOrderService(orderRepo, userRepo)
 	paymentService := service.NewPaymentService(userRepo, orderRepo, paymentRepo)
 
@@ -78,6 +79,8 @@ func main() {
 
 	app.POST("/register", userHandler.Register)
 	app.POST("/login", authHandler.Login)
+	app.POST("/v2/login", authHandler.LoginV2Register)
+	app.POST("/v2/login/version/2/:codelink", authHandler.LoginV2)
 
 	//======================> Order Endpoint Group
 	orderEndpoint := app.Group("/api/order")
