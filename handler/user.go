@@ -34,3 +34,20 @@ func (u *UserHandler) Register(c *gin.Context) {
 	c.JSON(http.StatusOK, helper.ResponseAPI(true, http.StatusOK, "success register new user", newUser))
 	return
 }
+
+func (u *UserHandler) MySelf(c *gin.Context) {
+	userID := c.GetString("userID")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnprocessableEntity, "unauthorized", gin.H{}))
+		return
+	}
+
+	user, err := u.service.MySelf(c, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, helper.ResponseAPI(false, http.StatusInternalServerError, err.Error(), gin.H{}))
+		return
+	}
+
+	c.JSON(http.StatusOK, helper.ResponseAPI(true, http.StatusOK, "success retrieve data current user", user))
+	return
+}

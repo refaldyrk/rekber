@@ -82,6 +82,12 @@ func main() {
 	app.POST("/v2/login", authHandler.LoginV2Register)
 	app.POST("/v2/login/version/2/:codelink", authHandler.LoginV2)
 
+	//======================> Myself Endpoint
+	myselfEndpoint := app.Group("/api/myself")
+	myselfEndpoint.Use(middleware.JWTMiddleware(DB))
+
+	myselfEndpoint.GET("/", userHandler.MySelf)
+
 	//======================> Order Endpoint Group
 	orderEndpoint := app.Group("/api/order")
 	orderEndpoint.Use(middleware.JWTMiddleware(DB))

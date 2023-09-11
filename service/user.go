@@ -58,3 +58,16 @@ func (u *UserService) Register(ctx context.Context, req model.User) (model.User,
 
 	return newUser, nil
 }
+
+func (u *UserService) MySelf(ctx context.Context, userID string) (model.User, error) {
+	if userID == "" {
+		return model.User{}, errors.New("user id can't be empty")
+	}
+
+	user, err := u.repo.Find(ctx, "user_id", userID)
+	if err != nil {
+		return model.User{}, err
+	}
+
+	return user, nil
+}
