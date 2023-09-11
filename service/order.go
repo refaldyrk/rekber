@@ -208,6 +208,10 @@ func (o *OrderService) SetStatusByOrderID(ctx context.Context, orderID, userID, 
 		if order.Status == constant.CANCELED_STATUS {
 			return false, errors.New("order has cancel")
 		}
+
+		if order.Status == constant.PENDING_STATUS {
+			return false, errors.New("order still pending")
+		}
 	} else if status == constant.CANCELED_STATUS {
 		if order.Status == constant.PAID_STATUS {
 			return false, errors.New("order has paid")
