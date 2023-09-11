@@ -65,7 +65,7 @@ func (u *AuthService) RegisterLoginV2(ctx context.Context, email string) (model.
 		ID:         primitive.NewObjectID(),
 		AuthID:     uuid.NewString(),
 		UserID:     user.UserID,
-		CodeLink:   fmt.Sprintf("type%dv2%d", time.Now().Unix(), time.Now().Second()),
+		CodeLink:   fmt.Sprintf("type%dv2%d%s", time.Now().Unix(), int64(time.Now().Second())+time.Now().Unix(), uuid.NewString()),
 		IsLoggedin: false,
 		CreatedAt:  time.Now().Unix(),
 		ExpiredAt:  time.Now().Add(1 * time.Minute).Unix(),
