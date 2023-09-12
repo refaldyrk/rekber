@@ -4,15 +4,32 @@ import (
 	"net/http"
 	"rekber/helper"
 	"rekber/model"
+	"rekber/repository"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/qiniu/qmgo"
 )
 
-func JWTMiddleware(db *qmgo.Database) gin.HandlerFunc {
+func JWTMiddleware(db *qmgo.Database, authRepo *repository.AuthRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		//Check Token Is Logout
 		authorizationHeader := c.Request.Header.Get("Authorization")
+
+		logout, err := authRepo.FindLogoutByToken(c, authorizationHeader)
+		if !logout.ID.IsZero() {
+			c.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnauthorized, "token has logout", gin.H{
+				"time": logout.LogoutAt,
+			}))
+			c.Abort()
+			return
+		}
+
+		if err != nil && err != qmgo.ErrNoSuchDocuments {
+			c.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnauthorized, err.Error(), gin.H{}))
+			c.Abort()
+			return
+		}
 
 		tokenCookies, _ := c.Cookie("Authorization")
 

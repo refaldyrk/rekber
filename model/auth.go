@@ -11,3 +11,10 @@ type Auth struct {
 	CreatedAt  int64              `json:"created_at" bson:"created_at"`
 	ExpiredAt  int64              `json:"expired_at" bson:"expired_at"`
 }
+
+type Logout struct {
+	ID       primitive.ObjectID `json:"id" bson:"_id"`
+	LogoutID string             `json:"logout_id" bson:"logout_id"`
+	Token    string             `json:"token" bson:"token"`
+	LogoutAt int64              `json:"logout_at" bson:"logout_at"`
+}

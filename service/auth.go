@@ -143,7 +143,7 @@ func (u *AuthService) LoginV2(ctx context.Context, codeLink string) (model.User,
 	return user, nil
 }
 
-func (u *AuthService) Logout(ctx context.Context, userID string) error {
+func (u *AuthService) Logout(ctx context.Context, userID string, token string) error {
 	if userID == "" {
 		return errors.New("user id can'be empty")
 	}
@@ -158,6 +158,16 @@ func (u *AuthService) Logout(ctx context.Context, userID string) error {
 	}
 
 	if err := u.repo.Update(ctx, bson.M{"user_id": userID}, bson.M{"device_connect": user.DeviceConnect - 1}); err != nil {
+		return err
+	}
+
+	//Insert Logout To Data Logout
+	if _, err = u.authRepo.InsertLogout(ctx, model.Logout{
+		ID:       primitive.NewObjectID(),
+		LogoutID: fmt.Sprintf("LOGOUT-%s", uuid.NewString()),
+		Token:    token,
+		LogoutAt: time.Now().Unix(),
+	}); err != nil {
 		return err
 	}
 

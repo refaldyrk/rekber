@@ -84,19 +84,19 @@ func main() {
 
 	//======================> Myself Endpoint
 	myselfEndpoint := app.Group("/api/myself")
-	myselfEndpoint.Use(middleware.JWTMiddleware(DB))
+	myselfEndpoint.Use(middleware.JWTMiddleware(DB, authRepo))
 
 	myselfEndpoint.GET("/", userHandler.MySelf)
 
 	//=======================> Logout Endpoint
 	logoutEndpoint := app.Group("/api/logout")
-	logoutEndpoint.Use(middleware.JWTMiddleware(DB))
+	logoutEndpoint.Use(middleware.JWTMiddleware(DB, authRepo))
 
 	logoutEndpoint.DELETE("/", authHandler.Logout)
 
 	//======================> Order Endpoint Group
 	orderEndpoint := app.Group("/api/order")
-	orderEndpoint.Use(middleware.JWTMiddleware(DB))
+	orderEndpoint.Use(middleware.JWTMiddleware(DB, authRepo))
 
 	orderEndpoint.GET("/", orderHandler.FindAllOrderByRole)
 	orderEndpoint.GET("/:id", orderHandler.GetOrderDetailByOrderID)
@@ -107,7 +107,7 @@ func main() {
 
 	//=================> Payment Endpoint Group
 	paymentEndpoint := app.Group("/api/payment")
-	paymentEndpoint.Use(middleware.JWTMiddleware(DB))
+	paymentEndpoint.Use(middleware.JWTMiddleware(DB, authRepo))
 
 	paymentEndpoint.POST("/:id", paymentHandler.NewPayment)
 

@@ -106,7 +106,13 @@ func (u *AuthHandler) Logout(ctx *gin.Context) {
 		return
 	}
 
-	err := u.service.Logout(ctx, userID)
+	authorizationHeader := ctx.Request.Header.Get("Authorization")
+	if authorizationHeader == "" {
+		ctx.JSON(http.StatusUnprocessableEntity, helper.ResponseAPI(false, http.StatusUnprocessableEntity, "unauthorized", gin.H{}))
+		return
+	}
+
+	err := u.service.Logout(ctx, userID, authorizationHeader)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, helper.ResponseAPI(false, http.StatusInternalServerError, err.Error(), gin.H{}))
 		return

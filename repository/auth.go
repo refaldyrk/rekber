@@ -44,3 +44,21 @@ func (a *AuthRepository) Update(ctx context.Context, filter bson.M, update bson.
 
 	return nil
 }
+
+func (a *AuthRepository) InsertLogout(ctx context.Context, data model.Logout) (model.Logout, error) {
+	_, err := a.db.Collection("Logout").InsertOne(ctx, data)
+	if err != nil {
+		return model.Logout{}, err
+	}
+
+	return data, nil
+}
+
+func (a *AuthRepository) FindLogoutByToken(ctx context.Context, token string) (model.Logout, error) {
+	var result model.Logout
+	if err := a.db.Collection("Logout").Find(ctx, bson.M{"token": token}).One(&result); err != nil {
+		return model.Logout{}, err
+	}
+
+	return result, nil
+}
