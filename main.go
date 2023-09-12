@@ -88,6 +88,12 @@ func main() {
 
 	myselfEndpoint.GET("/", userHandler.MySelf)
 
+	//=======================> Logout Endpoint
+	logoutEndpoint := app.Group("/api/logout")
+	logoutEndpoint.Use(middleware.JWTMiddleware(DB))
+
+	logoutEndpoint.DELETE("/", authHandler.Logout)
+
 	//======================> Order Endpoint Group
 	orderEndpoint := app.Group("/api/order")
 	orderEndpoint.Use(middleware.JWTMiddleware(DB))

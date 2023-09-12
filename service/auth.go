@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gopkg.in/mgo.v2/bson"
+	"rekber/constant"
 	"rekber/dto"
 	"rekber/helper"
 	"rekber/model"
@@ -37,10 +38,20 @@ func (u *AuthService) Login(ctx context.Context, req dto.LoginReq) (model.User, 
 		return model.User{}, errors.New("username or password is wrong")
 	}
 
+	//Check Device Connect
+	if user.DeviceConnect >= constant.MAX_LOGIN {
+		return model.User{}, errors.New("max login: 3, pls logout and try again")
+	}
+
 	// compare password
 	ok := helper.CheckPasswordHash(req.Password, user.Password)
 	if !ok {
 		return model.User{}, errors.New("username or password is wrong")
+	}
+
+	//Update Device Connect
+	if err := u.repo.Update(ctx, bson.M{"user_id": user.UserID}, bson.M{"device_connect": user.DeviceConnect + 1}); err != nil {
+		return model.User{}, err
 	}
 
 	return user, nil
@@ -59,6 +70,10 @@ func (u *AuthService) RegisterLoginV2(ctx context.Context, email string) (model.
 
 	if err != nil {
 		return model.Auth{}, err
+	}
+
+	if user.DeviceConnect >= constant.MAX_LOGIN {
+		return model.Auth{}, errors.New("logout pls")
 	}
 
 	loginV2 := model.Auth{
@@ -120,5 +135,31 @@ func (u *AuthService) LoginV2(ctx context.Context, codeLink string) (model.User,
 		return model.User{}, err
 	}
 
+	//Update Device Connect
+	if err := u.repo.Update(ctx, bson.M{"user_id": user.UserID}, bson.M{"device_connect": user.DeviceConnect + 1}); err != nil {
+		return model.User{}, err
+	}
+
 	return user, nil
+}
+
+func (u *AuthService) Logout(ctx context.Context, userID string) error {
+	if userID == "" {
+		return errors.New("user id can'be empty")
+	}
+
+	user, err := u.repo.Find(ctx, "user_id", userID)
+	if err != nil {
+		return err
+	}
+
+	if user.DeviceConnect == 0 {
+		return errors.New("login and you can logout")
+	}
+
+	if err := u.repo.Update(ctx, bson.M{"user_id": userID}, bson.M{"device_connect": user.DeviceConnect - 1}); err != nil {
+		return err
+	}
+
+	return nil
 }

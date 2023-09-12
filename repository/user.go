@@ -61,3 +61,12 @@ func (u *UserRepository) FindAll(ctx context.Context, nameFilter, valueFilter st
 
 	return user, nil
 }
+
+func (u *UserRepository) Update(ctx context.Context, filter bson.M, update bson.M) error {
+	if err := u.db.Collection("User").UpdateOne(ctx, filter, bson.M{
+		"$set": update,
+	}); err != nil {
+		return err
+	}
+	return nil
+}

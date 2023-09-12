@@ -42,13 +42,14 @@ func (u *UserService) Register(ctx context.Context, req model.User) (model.User,
 	}
 
 	user := model.User{
-		ID:        primitive.NewObjectID(),
-		UserID:    uuid.NewString(),
-		Username:  req.Username,
-		Email:     req.Email,
-		Password:  hashedPassword,
-		CreatedAt: time.Now().Unix(),
-		UpdatedAt: time.Now().Unix(),
+		ID:            primitive.NewObjectID(),
+		UserID:        uuid.NewString(),
+		Username:      req.Username,
+		Email:         req.Email,
+		DeviceConnect: 0,
+		Password:      hashedPassword,
+		CreatedAt:     time.Now().Unix(),
+		UpdatedAt:     time.Now().Unix(),
 	}
 
 	newUser, err := u.repo.Create(ctx, user)

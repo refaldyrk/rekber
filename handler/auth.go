@@ -98,3 +98,21 @@ func (u *AuthHandler) LoginV2(ctx *gin.Context) {
 	}))
 	return
 }
+
+func (u *AuthHandler) Logout(ctx *gin.Context) {
+	userID := ctx.GetString("userID")
+	if userID == "" {
+		ctx.JSON(http.StatusUnprocessableEntity, helper.ResponseAPI(false, http.StatusUnprocessableEntity, "unauthorized", gin.H{}))
+		return
+	}
+
+	err := u.service.Logout(ctx, userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, helper.ResponseAPI(false, http.StatusInternalServerError, err.Error(), gin.H{}))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, helper.ResponseAPI(true, http.StatusOK, "success logout", gin.H{
+		"message": "success logout",
+	}))
+}
