@@ -1,0 +1,15 @@
+version: '3'
+services:
+  app:
+    image: rekber-backend:latest
+    container_name: golang-app
+    ports:
+      - "9090:9090"
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27015:27017"
