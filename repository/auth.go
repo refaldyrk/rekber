@@ -62,3 +62,47 @@ func (a *AuthRepository) FindLogoutByToken(ctx context.Context, token string) (m
 
 	return result, nil
 }
+
+func (a *AuthRepository) InsertLogin(ctx context.Context, data model.Login) (model.Login, error) {
+	_, err := a.db.Collection("Login").InsertOne(ctx, data)
+	if err != nil {
+		return model.Login{}, err
+	}
+
+	return data, nil
+}
+
+func (a *AuthRepository) FindLogin(ctx context.Context, filter bson.M) (model.Login, error) {
+	var result model.Login
+	if err := a.db.Collection("Login").Find(ctx, filter).One(&result); err != nil {
+		return model.Login{}, err
+	}
+
+	return result, nil
+}
+
+func (a *AuthRepository) FindAllLogin(ctx context.Context, filter bson.M) ([]model.Login, error) {
+	var result []model.Login
+	if err := a.db.Collection("Login").Find(ctx, filter).All(&result); err != nil {
+		return []model.Login{}, err
+	}
+
+	return result, nil
+}
+
+func (a *AuthRepository) CountLoginData(ctx context.Context, filter bson.M) (int64, error) {
+	result, err := a.db.Collection("Login").Find(ctx, filter).Count()
+	if err != nil {
+		return 0, err
+	}
+
+	return result, nil
+}
+
+func (a *AuthRepository) DeleteLogin(ctx context.Context, filter bson.M) error {
+	if err := a.db.Collection("Login").Remove(ctx, filter); err != nil {
+		return err
+	}
+
+	return nil
+}

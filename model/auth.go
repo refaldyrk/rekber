@@ -18,3 +18,11 @@ type Logout struct {
 	Token    string             `json:"token" bson:"token"`
 	LogoutAt int64              `json:"logout_at" bson:"logout_at"`
 }
+
+type Login struct {
+	ID         primitive.ObjectID `json:"id" bson:"_id"`
+	LoginID    string             `json:"login_id" bson:"login_id"`
+	UserID     string             `json:"user_id" bson:"user_id"`
+	Token      string             `json:"token" bson:"token"`
+	LoggedinAt int64              `json:"loggedin_at" bson:"loggedin_at"`
+}

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"rekber/dto"
 	"rekber/helper"
@@ -41,6 +42,11 @@ func (u *AuthHandler) Login(ctx *gin.Context) {
 			"message": err.Error(),
 			"error":   true,
 		})
+		return
+	}
+
+	if err = u.service.InsertLoginData(ctx, user.UserID, fmt.Sprintf("Bearer %s", token)); err != nil {
+		ctx.JSON(http.StatusInternalServerError, helper.ResponseAPI(false, http.StatusInternalServerError, err.Error(), gin.H{}))
 		return
 	}
 
@@ -92,6 +98,11 @@ func (u *AuthHandler) LoginV2(ctx *gin.Context) {
 		return
 	}
 
+	if err = u.service.InsertLoginData(ctx, user.UserID, fmt.Sprintf("Bearer %s", token)); err != nil {
+		ctx.JSON(http.StatusInternalServerError, helper.ResponseAPI(false, http.StatusInternalServerError, err.Error(), gin.H{}))
+		return
+	}
+
 	ctx.JSON(http.StatusOK, helper.ResponseAPI(true, http.StatusOK, "success login", gin.H{
 		"token": token,
 		"user":  user,
@@ -102,13 +113,13 @@ func (u *AuthHandler) LoginV2(ctx *gin.Context) {
 func (u *AuthHandler) Logout(ctx *gin.Context) {
 	userID := ctx.GetString("userID")
 	if userID == "" {
-		ctx.JSON(http.StatusUnprocessableEntity, helper.ResponseAPI(false, http.StatusUnprocessableEntity, "unauthorized", gin.H{}))
+		ctx.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnauthorized, "unauthorized", gin.H{}))
 		return
 	}
 
 	authorizationHeader := ctx.Request.Header.Get("Authorization")
 	if authorizationHeader == "" {
-		ctx.JSON(http.StatusUnprocessableEntity, helper.ResponseAPI(false, http.StatusUnprocessableEntity, "unauthorized", gin.H{}))
+		ctx.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnauthorized, "unauthorized", gin.H{}))
 		return
 	}
 
@@ -121,4 +132,64 @@ func (u *AuthHandler) Logout(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, helper.ResponseAPI(true, http.StatusOK, "success logout", gin.H{
 		"message": "success logout",
 	}))
+}
+
+func (u *AuthHandler) CountLoginData(ctx *gin.Context) {
+	userID := ctx.GetString("userID")
+	if userID == "" {
+		ctx.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnauthorized, "unauthorized", gin.H{}))
+		return
+	}
+
+	result, err := u.service.CountLoginData(ctx, userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, helper.ResponseAPI(false, http.StatusInternalServerError, err.Error(), gin.H{}))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, helper.ResponseAPI(true, http.StatusOK, "success get total login data", gin.H{
+		"total": result,
+	}))
+}
+
+func (u *AuthHandler) FindAllLogin(ctx *gin.Context) {
+	userID := ctx.GetString("userID")
+	if userID == "" {
+		ctx.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnauthorized, "unauthorized", gin.H{}))
+		return
+	}
+
+	results, err := u.service.FindAllLoginData(ctx, userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, helper.ResponseAPI(false, http.StatusInternalServerError, err.Error(), gin.H{}))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, helper.ResponseAPI(true, http.StatusOK, "success get total login data", results))
+}
+
+func (u *AuthHandler) RemoteLogout(ctx *gin.Context) {
+	userID := ctx.GetString("userID")
+	if userID == "" {
+		ctx.JSON(http.StatusUnauthorized, helper.ResponseAPI(false, http.StatusUnauthorized, "unauthorized", gin.H{}))
+		return
+	}
+
+	param := ctx.Param("id")
+	if param == "" {
+		ctx.JSON(http.StatusBadRequest, helper.ResponseAPI(false, http.StatusBadRequest, "codelink has not found", gin.H{}))
+		return
+	}
+
+	//Service Logout
+	err := u.service.RemoteLogout(ctx, param, userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, helper.ResponseAPI(false, http.StatusInternalServerError, err.Error(), gin.H{}))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, helper.ResponseAPI(true, http.StatusOK, "success logout", gin.H{
+		"message": "success logout",
+	}))
+	return
 }

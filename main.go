@@ -93,6 +93,14 @@ func main() {
 	logoutEndpoint.Use(middleware.JWTMiddleware(DB, authRepo))
 
 	logoutEndpoint.DELETE("/", authHandler.Logout)
+	logoutEndpoint.DELETE("/remote/:id", authHandler.RemoteLogout)
+
+	//========================> Login Endpoint
+	loginEndpoint := app.Group("/api/authy/login")
+	loginEndpoint.Use(middleware.JWTMiddleware(DB, authRepo))
+
+	loginEndpoint.GET("/", authHandler.FindAllLogin)
+	loginEndpoint.GET("/count", authHandler.CountLoginData)
 
 	//======================> Order Endpoint Group
 	orderEndpoint := app.Group("/api/order")

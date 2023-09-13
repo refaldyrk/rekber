@@ -171,5 +171,75 @@ func (u *AuthService) Logout(ctx context.Context, userID string, token string) e
 		return err
 	}
 
+	if err = u.authRepo.DeleteLogin(ctx, bson.M{"token": token}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *AuthService) InsertLoginData(ctx context.Context, userID, token string) error {
+	if token == "" {
+		return errors.New("ERROR: token can't be empty")
+	}
+
+	if _, err := u.authRepo.InsertLogin(ctx, model.Login{
+		ID:         primitive.NewObjectID(),
+		LoginID:    uuid.NewString(),
+		UserID:     userID,
+		Token:      token,
+		LoggedinAt: time.Now().Unix(),
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *AuthService) CountLoginData(ctx context.Context, userID string) (int64, error) {
+	if userID == "" {
+		return 0, errors.New("userID can't be empty")
+	}
+
+	result, err := u.authRepo.CountLoginData(ctx, bson.M{"user_id": userID})
+	if err != nil {
+		return 0, err
+	}
+
+	return result, nil
+}
+
+func (u *AuthService) FindAllLoginData(ctx context.Context, userID string) ([]model.Login, error) {
+	if userID == "" {
+		return []model.Login{}, errors.New("user id can't be empty")
+	}
+
+	users, err := u.authRepo.FindAllLogin(ctx, bson.M{"user_id": userID})
+	if err != nil {
+		return []model.Login{}, err
+	}
+
+	return users, nil
+}
+
+func (u *AuthService) RemoteLogout(ctx context.Context, loginID, userID string) error {
+	if userID == "" || loginID == "" {
+		return errors.New("invalid request")
+	}
+
+	//Find Login
+	login, err := u.authRepo.FindLogin(ctx, bson.M{"login_id": loginID, "user_id": userID})
+	if login.UserID != userID {
+		return errors.New("you have no login data")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if err = u.Logout(ctx, userID, login.Token); err != nil {
+		return err
+	}
+
 	return nil
 }
