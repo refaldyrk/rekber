@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -20,12 +21,24 @@ import (
 )
 
 func main() {
+
+	//Set Flag
+	typeRunFlag := flag.String("type", "", "dev or docker")
+	flag.Parse()
+
+	typeRun := *typeRunFlag
 	//Set Time
 	startServerTime := time.Now()
 	//Set Context
 	ctx := context.Background()
 	//Init Viper
-	viper.SetConfigFile(".env")
+	if typeRun == "dev" {
+		viper.SetConfigFile(".env")
+	} else if typeRun == "docker" {
+		viper.SetConfigFile("docker.env")
+	} else {
+		panic("no such config")
+	}
 
 	err := viper.ReadInConfig()
 	if err != nil {
