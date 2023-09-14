@@ -16,6 +16,12 @@ Rekber adalah singkatan dari "Rekening Bersama." Ini adalah istilah yang umumnya
     docker build -t rekber-backend.
 - ```bash 
   docker compose up -d
+  
+### Run With Docker Hub
+- ```bash
+  docker pull efalrk/rekber-backend:latest
+- ```bash
+  docker compose up -d
 
 ### Note
 Jika anda ingin menjalankan app di mode dev/local maka tambahkan prefix <i>--type=dev</i>
