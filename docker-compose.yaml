@@ -1,7 +1,7 @@
 version: '3'
 services:
   app:
-    image: efalrk/rekber-backend:latest
+    image: efalrk/rekber-backend:latest #jika tidak dari hub maka hapus efalrk/ jadi hanya rekber-backend:latest
     container_name: golang-app
     ports:
       - "9090:9090"
@@ -12,4 +12,4 @@ services:
     image: mongo:latest
     container_name: mongodb
     ports:
-      - "27015:27017"
+      - "27015:27017" #port di sesuaikan di env file mu
