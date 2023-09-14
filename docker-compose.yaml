@@ -1,10 +1,12 @@
 version: '3'
 services:
   app:
-    image: efalrk/rekber-backend:latest #jika tidak dari hub maka hapus efalrk/ jadi hanya rekber-backend:latest
+    image: efalrk/rekber-backend:latest #Jika build sendiri jadikan image menjadi nama build image mu
     container_name: golang-app
     ports:
       - "9090:9090"
+    env_file:
+      - docker.env #Template .env ada di .env.example
     depends_on:
       - mongodb
 

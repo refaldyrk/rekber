@@ -12,6 +12,7 @@ import (
 	"rekber/middleware"
 	"rekber/repository"
 	"rekber/service"
+	"strings"
 	"syscall"
 	"time"
 
@@ -34,20 +35,23 @@ func main() {
 	//Init Viper
 	if typeRun == "dev" {
 		viper.SetConfigFile(".env")
+		err := viper.ReadInConfig()
+		if err != nil {
+			panic(err)
+		}
 	} else if typeRun == "docker" {
-		viper.SetConfigFile("docker.env")
+		allEnviron := os.Environ()
+		for _, v := range allEnviron {
+			arrEnv := strings.Split(v, "=")
+			viper.Set(strings.ToUpper(arrEnv[0]), arrEnv[1])
+		}
 	} else {
 		panic("no such config")
 	}
 
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-
 	//Init Config
 	mongodb := config.ConnectMongo(ctx)
-	err = mongodb.Ping(1000)
+	err := mongodb.Ping(1000)
 	if err != nil {
 		panic(err)
 	}

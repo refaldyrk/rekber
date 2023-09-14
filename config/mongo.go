@@ -12,6 +12,7 @@ import (
 func ConnectMongo(ctx context.Context) *qmgo.Client {
 	start := time.Now()
 	cli, err := qmgo.NewClient(ctx, &qmgo.Config{Uri: viper.GetString("MONGO_URL")})
+
 	if err != nil {
 		panic(err)
 	}
