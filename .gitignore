@@ -2,3 +2,4 @@ go.sum
 .env
 .idea
 docker.env
+docker-build.sh
