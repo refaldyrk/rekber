@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"rekber/constant"
 	"rekber/helper"
 	"rekber/model"
 	"rekber/repository"
@@ -32,8 +33,8 @@ func (u *UserService) Register(ctx context.Context, req model.User) (model.User,
 	//Check Username
 	userCheck, _ := u.repo.Find(ctx, "username", req.Username)
 
-	if !userCheck.ID.IsZero() {
-		return model.User{}, errors.New("username already exist")
+	if !userCheck.ID.IsZero() || userCheck.Email == req.Email {
+		return model.User{}, errors.New("user already exist")
 	}
 
 	hashedPassword, err := helper.HashPassword(req.Password)
@@ -47,6 +48,7 @@ func (u *UserService) Register(ctx context.Context, req model.User) (model.User,
 		Username:      req.Username,
 		Email:         req.Email,
 		DeviceConnect: 0,
+		Role:          constant.MEMBER_ROLE,
 		Password:      hashedPassword,
 		CreatedAt:     time.Now().Unix(),
 		UpdatedAt:     time.Now().Unix(),

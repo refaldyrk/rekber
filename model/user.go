@@ -8,6 +8,7 @@ type User struct {
 	Username      string             `json:"username" bson:"username"`
 	Email         string             `json:"email" bson:"email"`
 	Password      string             `json:"password" bson:"password"`
+	Role          string             `json:"role" bson:"role"`
 	DeviceConnect int64              `json:"device_connect" bson:"device_connect"`
 	CreatedAt     int64              `json:"created_at" bson:"created_at"`
 	UpdatedAt     int64              `json:"updated_at" bson:"updated_at"`
