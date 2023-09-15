@@ -35,6 +35,16 @@ func (u *UserRepository) Find(ctx context.Context, nameFilter, valueFilter strin
 	return user, nil
 }
 
+func (u *UserRepository) FindBSON(ctx context.Context, filter bson.M) (model.User, error) {
+	var user model.User
+	err := u.db.Collection("User").Find(ctx, filter).One(&user)
+	if err != nil {
+		return model.User{}, err
+	}
+
+	return user, nil
+}
+
 func (u *UserRepository) FindByUsernameOrEmail(ctx context.Context, nameFilter string) (model.User, error) {
 	var user model.User
 	filter := bson.M{

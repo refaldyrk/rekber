@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"gopkg.in/mgo.v2/bson"
 	"rekber/constant"
 	"rekber/helper"
 	"rekber/model"
@@ -31,9 +32,9 @@ func (u *UserService) Register(ctx context.Context, req model.User) (model.User,
 	}
 
 	//Check Username
-	userCheck, _ := u.repo.Find(ctx, "username", req.Username)
+	userCheck, _ := u.repo.FindBSON(ctx, bson.M{"username": req.Username, "email": req.Email})
 
-	if !userCheck.ID.IsZero() || userCheck.Email == req.Email {
+	if !userCheck.ID.IsZero() {
 		return model.User{}, errors.New("user already exist")
 	}
 
