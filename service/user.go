@@ -32,8 +32,13 @@ func (u *UserService) Register(ctx context.Context, req model.User) (model.User,
 	}
 
 	//Check Username
-	userCheck, _ := u.repo.FindBSON(ctx, bson.M{"username": req.Username, "email": req.Email})
+	userCheck, _ := u.repo.FindBSON(ctx, bson.M{"username": req.Username})
 
+	if !userCheck.ID.IsZero() {
+		return model.User{}, errors.New("user already exist")
+	}
+
+	userCheck, _ = u.repo.FindBSON(ctx, bson.M{"email": req.Email})
 	if !userCheck.ID.IsZero() {
 		return model.User{}, errors.New("user already exist")
 	}
