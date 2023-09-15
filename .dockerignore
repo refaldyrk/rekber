@@ -1,3 +1,4 @@
 .env
 docker.env
 docker-build.sh
+docker-up.sh
