@@ -62,6 +62,7 @@ func JWTMiddleware(db *qmgo.Database, authRepo *repository.AuthRepository) gin.H
 			return
 		}
 
+		c.Set("role", user.Role)
 		c.Set("userID", user.UserID)
 		c.Set("user", user)
 		c.Next()
