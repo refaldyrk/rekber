@@ -18,10 +18,13 @@ type PaymentService struct {
 	userRepo          *repository.UserRepository
 	orderRepo         *repository.OrderRepository
 	paymentRepository *repository.PaymentRepository
+
+	//Service
+	balanceService *BalanceService
 }
 
-func NewPaymentService(userRepo *repository.UserRepository, orderRepo *repository.OrderRepository, paymentRepo *repository.PaymentRepository) *PaymentService {
-	return &PaymentService{userRepo, orderRepo, paymentRepo}
+func NewPaymentService(userRepo *repository.UserRepository, orderRepo *repository.OrderRepository, paymentRepo *repository.PaymentRepository, balanceService *BalanceService) *PaymentService {
+	return &PaymentService{userRepo, orderRepo, paymentRepo, balanceService}
 }
 
 func (p *PaymentService) NewTransaction(ctx context.Context, orderID, userID string) (model.Payment, error) {
@@ -115,6 +118,15 @@ func (p *PaymentService) ProcessPayment(ctx context.Context, input model.Payment
 	if payment.Status == constant.PAID_STATUS {
 		err := p.orderRepo.Update(ctx, bson.M{"order_id": payment.OrderID}, bson.M{"status": constant.PAID_STATUS})
 		if err != nil {
+			return err
+		}
+
+		order, err := p.orderRepo.Find(ctx, bson.M{"order_id": payment.OrderID})
+		if err != nil {
+			return err
+		}
+
+		if err = p.balanceService.InsertNewBalance(ctx, payment.OrderID, order.Amount); err != nil {
 			return err
 		}
 	}
