@@ -141,6 +141,14 @@ func main() {
 
 	paymentNotificationEndpoint.POST("/notification", paymentHandler.NotificationPayment)
 
+	//===================> Admin Endpoint Group
+	adminEnpoint := app.Group("/admin/api/v1")
+	adminEnpoint.Use(middleware.JWTMiddleware(DB, authRepo))
+
+	adminEnpoint.GET("/", middleware.IsAdmin(), func(c *gin.Context) {
+		c.String(http.StatusOK, "You Are Admin")
+	})
+
 	//Init Server
 	srv := &http.Server{
 		Addr:    ":9090",
