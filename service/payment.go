@@ -126,7 +126,7 @@ func (p *PaymentService) ProcessPayment(ctx context.Context, input model.Payment
 			return err
 		}
 
-		if err = p.balanceService.InsertNewBalance(ctx, payment.OrderID, order.Amount); err != nil {
+		if err = p.balanceService.InsertNewBalance(ctx, payment.OrderID, order.SellerID, order.Amount, int64(order.Fee)); err != nil {
 			return err
 		}
 	}

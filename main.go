@@ -78,6 +78,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 	orderHandler := handler.NewOrderHandler(orderService)
 	paymentHandler := handler.NewPaymentHandler(paymentService)
+	balanceHandler := handler.NewBalanceHandler(balanceService)
 
 	//Server
 	app := gin.Default()
@@ -142,6 +143,13 @@ func main() {
 	paymentNotificationEndpoint := app.Group("/notification/3rd/midtrans")
 
 	paymentNotificationEndpoint.POST("/notification", paymentHandler.NotificationPayment)
+
+	//===================> Balance Endpoint
+	balanceEndpoint := app.Group("/api/balance")
+	balanceEndpoint.Use(middleware.JWTMiddleware(DB, authRepo))
+
+	balanceEndpoint.GET("/", balanceHandler.FindAllOrderByUserID)
+	balanceEndpoint.GET("/:id", balanceHandler.FindDetailBalance)
 
 	//===================> Admin Endpoint Group
 	adminEnpoint := app.Group("/admin/api/v1")

@@ -5,6 +5,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 type Balance struct {
 	ID           primitive.ObjectID `json:"id" bson:"_id"`
 	BalanceID    string             `json:"balance_id" bson:"balance_id"`
+	SellerID     string             `json:"seller_id" bson:"seller_id"`
 	OrderID      string             `json:"order_id" bson:"order_id"`
 	Amount       int64              `json:"amount" bson:"amount"`
 	IsWithdrawal bool               `json:"is_withdrawal" bson:"is_withdrawal"`
